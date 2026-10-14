@@ -27,7 +27,7 @@ projectRoutes.post("/projects", createProject);
 projectRoutes.get("/projects", authMiddleware, adminMiddleware, getAllProjects);
 
 // ? Listar los proyectos del usuario logueado: requiere sesión iniciada.
-projectRoutes.get("/projects/my-projects", getMyProjects);
+projectRoutes.get("/projects/my-projects", authMiddleware, getMyProjects);
 
 // ? Editar un proyecto: solo su líder y con datos válidos.
 projectRoutes.put("/projects/:id", updateProject);
