@@ -80,7 +80,8 @@ export const login = async (req, res) => {
     }
 
     const token = await signToken({
-      idUser: userExist,
+      id: userExist.id,
+      role: userExist.role,
     });
 
     res.cookie("token", token, {
