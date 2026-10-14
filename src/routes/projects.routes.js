@@ -24,7 +24,7 @@ export const projectRoutes = Router();
 projectRoutes.post("/projects", createProject);
 
 // ? Listar todos los proyectos: solo administrator.
-projectRoutes.get("/projects", getAllProjects);
+projectRoutes.get("/projects", authMiddleware, adminMiddleware, getAllProjects);
 
 // ? Listar los proyectos del usuario logueado: requiere sesión iniciada.
 projectRoutes.get("/projects/my-projects", getMyProjects);
