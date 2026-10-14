@@ -14,6 +14,54 @@ export const createProjectValidation = [
   // TODO: 5. Validar leader_id: debe existir y pertenecer a un usuario activo (UserModel).
   // TODO: 6. Validar technologies: lista de ids que existan (TechnologyModel).
   // ? Un usuario eliminado lógicamente no puede ser líder: comprobar que la búsqueda lo deje afuera.
+  body("code")
+    .trim()
+    .notEmpty()
+    .withMessage("El code es obligatorio")
+    .custom(async (code) => {
+      const codeExist = await ProjectModel.findOne({ where: { code } });
+      if (codeExist) throw new Error("El codigo ya existe");
+      return true;
+    }),
+  body("name").trim().notEmpty().withMessage("El nombre es obligatorio"),
+  body("description")
+    .trim()
+    .notEmpty()
+    .withMessage("La descripción es obligatoria"),
+  body("status")
+    .optional()
+    .isIn(["planning", "in_progress", "paused", "finished"])
+    .withMessage(
+      `El status solo puede ser planning, in_progress, paused o finished`,
+    ),
+  body("start_date")
+    .notEmpty()
+    .withMessage("La fecha de inicio es obligatoria")
+    .isISO8601()
+    .withMessage("La fecha de inicio no es válida"),
+  body("budget")
+    .notEmpty()
+    .withMessage("El presupuesto es obligatorio")
+    .isFloat()
+    .withMessage("El presupuesto debe ser un número positivo"),
+  body("leader_id")
+    .notEmpty()
+    .withMessage("El líder es obligatorio")
+    .isInt({ min: 1 })
+    .withMessage("El leader_id debe ser un entero")
+    .bail()
+    .custom(async (leader_id) => {
+      const userExist = await UserModel.findByPk(leader_id);
+      if (!userExist) throw new Error("El líder no existe");
+      return true;
+    }),
+  body("technologies")
+    .isArray()
+    .withMessage("technologies debe ser una lista de ids"),
+  body("technologies.*")
+    .isInt({ min: 1 })
+    .withMessage("Cada technology debe ser un id entero"),
+  // body("technologies").custom(),
 ];
 
 export const updateProjectValidation = [

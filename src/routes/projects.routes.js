@@ -24,13 +24,18 @@ export const projectRoutes = Router();
 projectRoutes.post("/projects", createProject);
 
 // ? Listar todos los proyectos: solo administrator.
-projectRoutes.get("/projects", getAllProjects);
+projectRoutes.get("/projects", authMiddleware, adminMiddleware, getAllProjects);
 
 // ? Listar los proyectos del usuario logueado: requiere sesión iniciada.
-projectRoutes.get("/projects/my-projects", getMyProjects);
+projectRoutes.get("/projects/my-projects", authMiddleware, getMyProjects);
 
 // ? Editar un proyecto: solo su líder y con datos válidos.
 projectRoutes.put("/projects/:id", updateProject);
 
 // ? Eliminar un proyecto: solo su líder.
-projectRoutes.delete("/projects/:id", deleteProject);
+projectRoutes.delete(
+  "/projects/:id",
+  authMiddleware,
+  leaderMiddleware,
+  deleteProject,
+);
