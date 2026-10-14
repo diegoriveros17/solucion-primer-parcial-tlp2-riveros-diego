@@ -33,4 +33,9 @@ projectRoutes.get("/projects/my-projects", authMiddleware, getMyProjects);
 projectRoutes.put("/projects/:id", updateProject);
 
 // ? Eliminar un proyecto: solo su líder.
-projectRoutes.delete("/projects/:id", deleteProject);
+projectRoutes.delete(
+  "/projects/:id",
+  authMiddleware,
+  leaderMiddleware,
+  deleteProject,
+);
