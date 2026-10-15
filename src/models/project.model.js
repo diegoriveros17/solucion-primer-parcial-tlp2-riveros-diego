@@ -32,7 +32,7 @@ export const ProjectModel = sequelize.define("Project", {
     type: DataTypes.DATE(),
     allowNull: false,
   },
-  budged: {
+  budget: {
     type: DataTypes.FLOAT(),
     allowNull: false,
   },

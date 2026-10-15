@@ -42,7 +42,7 @@ export const createProjectValidation = [
   body("budget")
     .notEmpty()
     .withMessage("El presupuesto es obligatorio")
-    .isFloat()
+    .isInt()
     .withMessage("El presupuesto debe ser un número positivo"),
   body("leader_id")
     .notEmpty()
@@ -61,7 +61,13 @@ export const createProjectValidation = [
   body("technologies.*")
     .isInt({ min: 1 })
     .withMessage("Cada technology debe ser un id entero"),
-  // body("technologies").custom(),
+  body("technologies").custom(async (ids) => {
+    if (!Array.isArray(ids)) return true; // el error ya lo informa isArray
+    const unique = [...new Set(ids)];
+    const count = await TechnologyModel.count({ where: { id: unique } });
+    if (count !== unique.length) throw new Error("Alguna technology no existe");
+    return true;
+  }),
 ];
 
 export const updateProjectValidation = [

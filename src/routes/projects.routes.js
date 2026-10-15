@@ -21,7 +21,13 @@ export const projectRoutes = Router();
 // TODO: 1. Decidir y aplicar los middlewares que correspondan a cada ruta.
 
 // ? Crear un proyecto: requiere sesión iniciada y datos válidos.
-projectRoutes.post("/projects", createProject);
+projectRoutes.post(
+  "/projects",
+  authMiddleware,
+  createProjectValidation,
+  validator,
+  createProject,
+);
 
 // ? Listar todos los proyectos: solo administrator.
 projectRoutes.get("/projects", authMiddleware, adminMiddleware, getAllProjects);
