@@ -5,6 +5,7 @@ import {
   TechnologyModel,
   UserModel,
 } from "../../models/index.js";
+import { Op } from "sequelize";
 
 export const createProjectValidation = [
   // TODO: 1. Validar code: obligatorio y único (ProjectModel).
@@ -42,7 +43,7 @@ export const createProjectValidation = [
   body("budget")
     .notEmpty()
     .withMessage("El presupuesto es obligatorio")
-    .isInt()
+    .isFloat()
     .withMessage("El presupuesto debe ser un número positivo"),
   body("leader_id")
     .notEmpty()
@@ -77,4 +78,68 @@ export const updateProjectValidation = [
   // TODO: 10. Validar leader_id como opcional, existente y de un usuario activo.
   // TODO: 11. Validar technologies como opcional, con ids que existan.
   // ? Para saber qué proyecto se edita, el id se obtiene de los parámetros de la ruta (req.params).
+  body("code")
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage("El code no puede estar vacío")
+    .custom(async (code, { req }) => {
+      const found = await ProjectModel.findOne({
+        where: { code, id: { [Op.ne]: req.params.id } },
+      });
+      if (found) throw new Error("El code ya existe");
+      return true;
+    }),
+  body("name")
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage("El nombre no puede estar vacío"),
+  body("description")
+    .optional()
+    .trim()
+    .notEmpty()
+    .withMessage("La descripción no puede estar vacía"),
+  body("status")
+    .optional()
+    .isIn(["planning", "in_progress", "paused", "finished"])
+    .withMessage(
+      `El status solo puede ser planning, in_progress, paused o finished`,
+    ),
+  body("start_date")
+    .optional()
+    .isISO8601()
+    .withMessage("La fecha de inicio no es válida"),
+  body("budget")
+    .optional()
+    .isFloat()
+    .withMessage("El presupuesto debe ser un número positivo"),
+  body("leader_id")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("El leader_id debe ser un entero")
+    .bail()
+    .custom(async (leader_id) => {
+      const userExist = await UserModel.findByPk(leader_id);
+      if (!userExist) throw new Error("El líder no existe");
+      return true;
+    }),
+  body("technologies")
+    .optional()
+    .isArray()
+    .withMessage("technologies debe ser una lista de ids"),
+  body("technologies.*")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Cada technology debe ser un id entero"),
+  body("technologies")
+    .optional()
+    .custom(async (ids) => {
+      if (!Array.isArray(ids)) return true; // el error ya lo informa isArray
+      const unique = [...new Set(ids)];
+      const count = await TechnologyModel.count({ where: { id: unique } });
+      if (count !== unique.length)
+        throw new Error("Alguna technology no existe");
+      return true;
+    }),
 ];

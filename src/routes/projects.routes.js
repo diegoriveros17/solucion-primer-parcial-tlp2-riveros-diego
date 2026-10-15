@@ -36,7 +36,14 @@ projectRoutes.get("/projects", authMiddleware, adminMiddleware, getAllProjects);
 projectRoutes.get("/projects/my-projects", authMiddleware, getMyProjects);
 
 // ? Editar un proyecto: solo su líder y con datos válidos.
-projectRoutes.put("/projects/:id", updateProject);
+projectRoutes.put(
+  "/projects/:id",
+  authMiddleware,
+  leaderMiddleware,
+  updateProjectValidation,
+  validator,
+  updateProject,
+);
 
 // ? Eliminar un proyecto: solo su líder.
 projectRoutes.delete(

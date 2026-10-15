@@ -24,7 +24,7 @@ export const ProjectModel = sequelize.define("Project", {
     allowNull: false,
   },
   status: {
-    type: DataTypes.ENUM("planning", "in_progess", "paused", "finished"),
+    type: DataTypes.ENUM("planning", "in_progress", "paused", "finished"),
     allowNull: false,
     defaultValue: "planning",
   },
