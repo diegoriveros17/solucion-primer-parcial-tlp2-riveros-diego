@@ -18,18 +18,6 @@ export const register = async (req, res) => {
 
     const passwordHashed = await hashPassword(password);
 
-    const userExist = await UserModel.findOne({
-      where: {
-        [Op.or]: [{ username: username }, { email: email }],
-      },
-    });
-
-    if (userExist) {
-      return res.status(409).json({
-        message: `El nombre de usuario o email ya se encuentra en uso`,
-      });
-    }
-
     const newUser = await UserModel.create({
       username,
       email,

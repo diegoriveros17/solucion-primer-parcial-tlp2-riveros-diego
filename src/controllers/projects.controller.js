@@ -21,8 +21,11 @@ export const createProject = async (req, res) => {
       status,
       start_date,
       budget,
+      leader_id,
       technologies,
     } = matchedData(req, { locations: ["body"] });
+
+    console.log(budget);
 
     const project = await ProjectModel.create({
       code,
@@ -31,11 +34,26 @@ export const createProject = async (req, res) => {
       status,
       start_date,
       budget,
-      leader_id: req.user.id,
-      technologies,
+      leader_id,
     });
 
-    return res.status(201).json({ project });
+    await project.setTechnologies([...new Set(technologies)]);
+
+    const data = await ProjectModel.findByPk(project.id, {
+      include: [
+        {
+          model: TechnologyModel,
+          as: "technologies",
+          through: { attributes: [] },
+        },
+        {
+          model: UserModel,
+          as: "leader",
+          attributes: { exclude: ["password"] },
+        },
+      ],
+    });
+    return res.status(201).json({ data });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Error interno del servidor" });
@@ -59,7 +77,7 @@ export const getAllProjects = async (_req, res) => {
         },
       ],
     });
-    return res.status(200).json({ projects });
+    return res.status(200).json({ data: projects });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Error interno del servidor" });
@@ -79,7 +97,7 @@ export const getMyProjects = async (req, res) => {
         },
       ],
     });
-    return res.status(200).json(projects);
+    return res.status(200).json({ data: projects });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Error interno del servidor" });
@@ -91,6 +109,49 @@ export const updateProject = async (req, res) => {
     // TODO: 1. Actualizar el project con los datos recibidos.
     // TODO: 2. Reemplazar sus technologies si vienen en el body.
     // TODO: 3. Responder con código 200 y el project actualizado, incluyendo su leader y sus technologies.
+    const {
+      code,
+      name,
+      description,
+      status,
+      start_date,
+      budget,
+      leader_id,
+      technologies,
+    } = matchedData(req, { locations: ["body"] });
+
+    // leaderMiddleware ya comprobó que el proyecto existe y es del usuario logueado.
+    const project = await ProjectModel.findByPk(req.params.id);
+
+    // TODO: 1. Actualizar el project con los datos recibidos.
+    // Los campos undefined (no enviados) son ignorados por Sequelize.
+    await project.update({
+      code,
+      name,
+      description,
+      status,
+      start_date,
+      budget,
+      leader_id,
+    });
+
+    if (technologies) await project.setTechnologies([...new Set(technologies)]);
+
+    const data = await ProjectModel.findByPk(project.id, {
+      include: [
+        {
+          model: TechnologyModel,
+          as: "technologies",
+          through: { attributes: [] },
+        },
+        {
+          model: UserModel,
+          as: "leader",
+          attributes: { exclude: ["password"] },
+        },
+      ],
+    });
+    return res.status(200).json({ data });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ msg: "Error interno del servidor" });
