@@ -19,6 +19,10 @@ export const createProjectValidation = [
     .trim()
     .notEmpty()
     .withMessage("El code es obligatorio")
+    .matches(/^[A-Z0-9-]{3,30}$/)
+    .withMessage(
+      "El code solo puede tener mayúsculas, números y guiones (ej: PRJ-001)",
+    )
     .custom(async (code) => {
       const codeExist = await ProjectModel.findOne({ where: { code } });
       if (codeExist) throw new Error("El codigo ya existe");
@@ -28,7 +32,9 @@ export const createProjectValidation = [
   body("description")
     .trim()
     .notEmpty()
-    .withMessage("La descripción es obligatoria"),
+    .withMessage("La descripción es obligatoria")
+    .isLength({ min: 10, max: 500 })
+    .withMessage("La descripción debe tener entre 10 y 500 caracteres"),
   body("status")
     .optional()
     .isIn(["planning", "in_progress", "paused", "finished"])
@@ -82,7 +88,11 @@ export const updateProjectValidation = [
     .optional()
     .trim()
     .notEmpty()
-    .withMessage("El code no puede estar vacío")
+    .withMessage("El code es obligatorio")
+    .matches(/^[A-Z0-9-]{3,30}$/)
+    .withMessage(
+      "El code solo puede tener mayúsculas, números y guiones (ej: PRJ-001)",
+    )
     .custom(async (code, { req }) => {
       const found = await ProjectModel.findOne({
         where: { code, id: { [Op.ne]: req.params.id } },
@@ -94,7 +104,9 @@ export const updateProjectValidation = [
     .optional()
     .trim()
     .notEmpty()
-    .withMessage("El nombre no puede estar vacío"),
+    .withMessage("El nombre no puede estar vacío")
+    .isLength({ min: 10, max: 500 })
+    .withMessage("La descripción debe tener entre 10 y 500 caracteres"),
   body("description")
     .optional()
     .trim()
