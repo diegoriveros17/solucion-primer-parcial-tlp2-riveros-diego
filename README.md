@@ -11,4 +11,62 @@ API REST con Node.js, Express y Sequelize/MySQL.
 
 ## Endpoints
 
-_Completar el listado de endpoints._
+### Auth
+
+Método: POST
+Ruta:`/api/auth/register`
+Acceso: público
+
+Método: POST
+Ruta:`/api/auth/login`
+Acceso: público
+
+Método: POST
+Ruta:`/api/auth/logout`
+Acceso: sesión iniciada
+
+### Projects
+
+Método: POST
+Ruta:`/api/projects`
+Acceso: sesión iniciada
+
+Método: GET
+Ruta:`/api/projects`
+Acceso: administrator
+
+Método: GET
+Ruta:`/api/projects/my-projects`
+Acceso: sesión iniciada
+
+Método: PUT
+Ruta:`/api/projects/:id`
+Acceso: líder del proyecto
+
+Método: DELETE
+Ruta:`/api/projects/:id`
+Acceso: líder del proyecto
+
+### Users
+
+Método: GET
+Ruta:`/api/users`
+Acceso: administrator
+
+Método: DELETE
+Ruta:`/api/users/:id`
+Acceso: administrator
+
+### Technologies
+
+Método: POST
+Ruta:`/api/technologies`
+Acceso: administrator
+
+Método: GET
+Ruta:`/api/technologies`
+Acceso: sesión iniciada
+
+Método: DELETE
+Ruta:`/api/technologies/:id`
+Acceso: administrator
