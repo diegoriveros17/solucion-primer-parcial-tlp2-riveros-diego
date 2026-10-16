@@ -16,6 +16,8 @@ export const registerValidation = [
     .withMessage("El nombre de usuario es obligatorio")
     .isLength({ min: 3, max: 20 })
     .withMessage("El nombre de usuario debe tener entre 3 y 20 caracteres")
+    .isAlphanumeric()
+    .withMessage("El username solo puede tener letras y números")
     .custom(async (username) => {
       const user = await UserModel.findOne({
         where: { username },
@@ -42,15 +44,24 @@ export const registerValidation = [
     .notEmpty()
     .withMessage("La contraseña es obligatoria")
     .isLength({ min: 8 })
-    .withMessage("La contraseña debe tener entre como minimo 8 caracteres"),
+    .withMessage("La contraseña debe tener como minimo 8 caracteres")
+    .matches(/[A-Z]/)
+    .withMessage("La password debe tener al menos una mayúscula")
+    .matches(/[a-z]/)
+    .withMessage("La password debe tener al menos una minúscula")
+    .matches(/[0-9]/)
+    .withMessage("La password debe tener al menos un número"),
   body("role")
     .optional()
     .isIn(["developer", "administrador"])
     .withMessage("El rol solo puede ser developer o admininistrador"),
   body("profile.employee_number")
     .trim()
-    .isInt({ min: 1 })
-    .withMessage("El numero de empleado deber ser un numero entero")
+    .notEmpty()
+    .matches(/^[A-Za-z0-9-]{3,20}$/)
+    .withMessage(
+      "El número de empleado solo puede tener letras, números y guiones (3 a 20 caracteres)",
+    )
     .custom(async (employee_number) => {
       const employeeExist = await ProfileModel.findOne({
         where: { employee_number },
@@ -62,12 +73,24 @@ export const registerValidation = [
   body("profile.first_name")
     .trim()
     .notEmpty()
-    .withMessage("El nombre no puede ser vacio"),
+    .withMessage("El nombre es obligatorio")
+    .isLength({ min: 2, max: 50 })
+    .withMessage("El nombre debe tener entre 2 y 50 caracteres")
+    .matches(/^[A-Za-z]+$/)
+    .withMessage("El nombre solo puede tener letras"),
   body("profile.last_name")
     .trim()
     .notEmpty()
-    .withMessage("El apellido no puede ser vacio"),
-  body("profile.phone").optional(),
+    .withMessage("El apellido es obligatorio")
+    .isLength({ min: 2, max: 50 })
+    .withMessage("El apellido debe tener entre 2 y 50 caracteres")
+    .matches(/^[A-Za-z]+$/)
+    .withMessage("El apellido solo puede tener letras"),
+  body("profile.phone")
+    .optional({ values: "falsy" })
+    .matches(/^\+?[0-9\s-]{6,20}$/)
+    .withMessage("El teléfono no tiene un formato válido"),
+  ,
 ];
 
 export const loginValidation = [
@@ -79,5 +102,8 @@ export const loginValidation = [
     .withMessage("El correo electrónico es obligatorio")
     .isEmail()
     .withMessage("El correo electrónico no es válido"),
-  body("password").notEmpty().withMessage("La contraseña es obligatoria"),
+  body("password")
+    .notEmpty()
+    .isLength({ min: 8 })
+    .withMessage("La contraseña es obligatoria"),
 ];
